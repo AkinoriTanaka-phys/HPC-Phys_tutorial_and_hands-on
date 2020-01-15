@@ -16,7 +16,7 @@ def random_initialize(Maze):
     floor_labels = np.arange(len(Maze.floors))
     start_floor_label = np.random.choice(floor_labels)
     goal_floor_label = np.random.choice(floor_labels)
-    Maze.set_start(Maze.floors[start_floor_label].tolist())
+    #Maze.set_start(Maze.floors[start_floor_label].tolist())
     Maze.set_goal(Maze.floors[goal_floor_label].tolist())
     return Maze
 
@@ -45,7 +45,12 @@ class MazeEnv():
         if coordinate[0]!=None:
             self.state = np.array(coordinate)
         else:
-            self.state = np.array(self.start)
+            #
+            floor_labels = np.arange(len(self.floors))
+            start_floor_label = np.random.choice(floor_labels)
+            self.state = self.floors[start_floor_label]
+            #
+            #self.state = np.array(self.start)
         self.status = 'Reset'
         self.t = 0
         return self.get_state()
