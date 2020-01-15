@@ -1,32 +1,43 @@
 import numpy as np
 
 class Optimizer():
-    def __init__(self):
+    def __init__(self, Agt):
+        self.Agt = Agt
+    
+    def update(self):
+        """
+        なんかいい感じの処理
+        """
         pass
     
-class Qlearning_optimizer(Optimizer):
-    def __init__(self, Agt, lr, gamma):
-        self.Q = Agt.Policy.Q
-        self.lr = lr
-        self.gamma = gamma
-        
-    def update(self, state0, action, reward, state1):
-        _s, a, r, s = state0, action, reward, state1
-        deltaQ = r + self.gamma*np.max(self.Q.get_values(s)) - self.Q.get_values(_s)[a]   
-        self.Q.get_values(_s)[a] += self.lr*deltaQ
-        
 class SARSA_optimizer(Optimizer):
-    def __init__(self, Agt, lr, gamma):
+    def __init__(self, Agt, eta, gamma):
         self.Agent = Agt
         self.Q = Agt.Policy.Q
-        self.lr = lr
+        self.eta = eta
         self.gamma = gamma
 
-    def update(self, state0, action0, reward, state1):
-        action1 = self.Agent.play()
-        _s,a,r,s,a_ = state0, action0, reward, state1, action1
-        TD_error = r + self.gamma*self.Q.get_values(s)[a_] - self.Q.get_values(_s)[a]
-        self.Q.get_values(_s)[a] += self.lr*TD_error
+    def update(self, s, a, r_next, s_next):
+        a_next = self.Agent.play() # 一回プレイさせてa_nextをサンプル
+        TD_error = self.Q.get_values(s)[a] - (r_next + 
+                                              self.gamma*self.Q.get_values(s_next)[a_next])
+        self.Q.get_values(s)[a] -= self.eta*TD_error
+        
+        
+    
+class Qlearning_optimizer(Optimizer):
+    def __init__(self, Agt, eta, gamma):
+        self.Agent = Agt
+        self.Q = Agt.Policy.Q
+        self.eta = eta
+        self.gamma = gamma
+
+    def update(self, s, a, r_next, s_next):
+        error = self.Q.get_values(s)[a] - (r_next + 
+                                           self.gamma*np.max(self.Q.get_values(s_next)))
+                                                       # ↑ ここが変わった
+        self.Q.get_values(s)[a] -= self.eta*error
+       
         
 class REINFORCE_optimizer(Optimizer):
     def __init__(self, Agt, lr):

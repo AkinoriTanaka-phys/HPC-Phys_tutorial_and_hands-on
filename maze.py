@@ -19,6 +19,13 @@ def random_initialize(Maze):
     Maze.set_start(Maze.floors[start_floor_label].tolist())
     Maze.set_goal(Maze.floors[goal_floor_label].tolist())
     return Maze
+
+def get_fig_ax(size=(8, 5)):
+    fig = plt.figure(figsize=size)
+    ax = fig.add_subplot(111)
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    return fig, ax
         
 class MazeEnv():
     def __init__(self, lx, ly, threshold=0.9, figsize=5):
@@ -49,22 +56,11 @@ class MazeEnv():
         """
         return self.goal==self.state.tolist()
     
-    def get_reward(self):
-        return self.is_solved()*1
-    
     def get_state(self):
         """
         returns (x, y) coordinate of the state
         """
         return copy.deepcopy(self.state)#, copy.deepcopy(self.state[1])
-    
-    def take_action(self, action):
-        add_vector_np = action2vect[action]
-        if (self.state+add_vector_np).tolist() in self.floors.tolist():
-            self.state = self.state+add_vector_np
-            self.status = 'Moved'
-        else:
-            self.status = 'Move failed'
             
     def step0(self, state, action):
         add_vector_np = action2vect[action]
@@ -93,13 +89,6 @@ class MazeEnv():
         # self.state update
         self.state = next_state
         return self.get_state(), reward, self.is_solved(), {}
-    
-    def step_(self, action):
-        self.take_action(action)
-        reward = self.get_reward()
-        ob = self.get_state()
-        episode_over = self.is_solved()
-        return ob, reward, episode_over, {}
         
     def create_maze_by_normal_distribution(self, threshold):
         """

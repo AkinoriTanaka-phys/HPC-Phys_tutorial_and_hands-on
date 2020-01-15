@@ -1,46 +1,30 @@
 import numpy as np
 
-def get_indices(x_np, value, is_equal=True):
-    """
-    > x_np = np.array([10, 10, 100, 1000])
-    > get_indices(x_np, 10, is_equal=True)
-    >>> [0,1]
-    > get_indices(x_np, 10, is_equal=False)
-    >>> [2,3]
-    """
-    r = np.arange(len(x_np))
-    ell = r[x_np==value].tolist()
-    n_ell = r[x_np!=value].tolist()
-    #print(equal_labels_list)
-    if is_equal:
-        return r[x_np==value].tolist()
-    elif (not is_equal) and n_ell!=[]:
-        return r[x_np!=value].tolist()
-    else:
-        return r.tolist()
-
 def softmax(xs):
     num = np.exp(xs)
     den = np.sum(num)
     return num/den
 
-class Table():
-    """
-    Training parameter class
-    """
-    def __init__(self, Env, init=0):
-        self.values_table = init*np.ones(Env.lx*Env.ly*4).reshape(Env.lx, Env.ly, 4)
+class Parameters():
+    def __init__(self, Env, init=0.01):
+        self.values_table = init*np.random.rand(Env.lx*Env.ly*4).reshape(Env.lx, Env.ly, 4)
         
-    def get_values(self, state):
-        x, y = state
+    def get_values(self, s):
+        """
+        座標＝sでの[Q(s, a=0), Q(s, a=1), Q(s, a=2), Q(s, a=3)]
+                      を返す
+        """
+        x, y = s # state
         return self.values_table[x, y, :]
-
 
 class Policy():
     def __init__(self):
         pass
     
     def sample(self):
+        """
+        return a number in [0,1,2,3] corresponding to [up, down, left, right]
+        """
         action = None
         return action
     
@@ -49,46 +33,31 @@ class Random(Policy):
         self.A = Env.action_space # 迷路だと[0, 1, 2, 3]
         
     def sample(self):
-        return np.random.choice(self.A)
+        return np.random.choice(self.A) # np.random.choice(リスト)：リストから1つの要素をランダムサンプル
     
 class Greedy(Policy):
-    def __init__(self, Env, Q=None):
-        if Q is None:
-            self.Q = Table(Env)
-        else:
-            self.Q = Q
+    def __init__(self, Env, Q):
+        self.Q = Q
         self.Env = Env
         
-    def sample(self):
-        Qvalues = self.Q.get_values(self.Env.state)
-        maxQ = np.max(Qvalues)
-        possible_actions = get_indices(Qvalues, maxQ, is_equal=True)
-        action = np.random.choice(possible_actions)
+    def returns_action_from(self, values):
+        action = np.argmax(values)
         return action
-
-class EpsilonGreedy(Policy):
-    def __init__(self, Env, epsilon=0.1, Q=None):
-        if Q is None:
-            self.Q = Table(Env)
-        else:
-            self.Q = Q
-        self.Env = Env
-        self.epsilon = epsilon
         
     def sample(self):
         Qvalues = self.Q.get_values(self.Env.state)
-        maxQ = np.max(Qvalues)
-        r = np.random.rand()
-        if r < 1- self.epsilon:
-            possible_actions = get_indices(Qvalues, maxQ, is_equal=True)
+        return self.returns_action_from(Qvalues)
+
+class EpsilonGreedy(Greedy):
+    def __init__(self, Env, Q, epsilon=0.1):
+        super(EpsilonGreedy, self).__init__(Env, Q) # python 3 : super().__init__(Env, Q)で十分
+        self.epsilon = epsilon
+    
+    def returns_action_from(self, values):
+        if np.random.rand()<1-self.epsilon:
+            action = np.argmax(values)
         else:
-            possible_actions = get_indices(Qvalues, maxQ, is_equal=False)
-        
-        try:## for early stage of learning
-            action = np.random.choice(possible_actions)
-        except ValueError:
-            action = np.random.choice(np.arange(len(Qvalues))) 
-            
+            action = np.random.choice(np.arange(len(values)))
         return action
 
        

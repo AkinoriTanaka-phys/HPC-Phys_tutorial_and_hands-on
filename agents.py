@@ -39,10 +39,3 @@ class Human(Agent):
                 return key2action[k]
             except KeyError:
                 print("type k/h/l/j")
-                
-class Machine(Agent):
-    def __init__(self, Policy):
-        self.Policy = Policy
-        
-    def play(self):
-        return self.Policy.sample()
