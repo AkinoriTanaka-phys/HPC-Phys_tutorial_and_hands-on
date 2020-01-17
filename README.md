@@ -39,3 +39,16 @@ Type "help", "copyright", "credits" or "license" for more information.
 >>>
 ```
 です。anacondaが入っていれば動くと思います。
+
+# 参考文献
+定番の教科書として以下のものがあります。オンライン版(英語)は、なんと無料です。
+* [Reinforcement Learning: An Introduction](http://incompleteideas.net/book/the-book.html), Richard S. Sutton and Andrew G. Barto著, 邦訳:[強化学習](https://www.morikita.co.jp/books/book/1990)
+
+最近出た以下の教科書も前半に基本的な事項がまとまっていて読みやすいです。最近の高度な話題も書いてあるようです。
+* [これからの強化学習](https://www.morikita.co.jp/books/book/3034), 牧野貴樹さん他(編著), 浅田稔さん他(共著)
+
+迷路の環境や、REINFORCEアルゴリズムでは以下の本を参考にしました。
+* [最強囲碁AI アルファ碁 解体新書 増補改訂版 アルファ碁ゼロ対応 深層学習、モンテカルロ木探索、強化学習から見たその仕組み](https://www.shoeisha.co.jp/book/detail/9784798157771),　三宅陽一郎さん(監修), 大槻知史さん著
+
+強化学習の基礎的な部分については以下の教科書の後半部分に多くを学ばせていただきました
+* [これならわかる深層学習入門(機械学習スタートアップシリーズ)](https://www.kspub.co.jp/book/detail/1538283.html), 瀧雅人さん著
