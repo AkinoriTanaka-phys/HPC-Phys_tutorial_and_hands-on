@@ -5,13 +5,13 @@
 * [section2_handson.ipynb](https://github.com/AkinoriTanaka-phys/HPC-Phys_tutorial_and_hands-on/blob/master/section2_handson.ipynb)
 * [section3_handson.ipynb](https://github.com/AkinoriTanaka-phys/HPC-Phys_tutorial_and_hands-on/blob/master/section3_handson.ipynb)
 
-を使います。python環境がない人は[GoogleColabでの当日用](https://colab.research.google.com/github/AkinoriTanaka-phys/HPC-Phys_tutorial_and_hands-on/blob/master/handson_for_colab.ipynb)を使ってください。こちらは実行にはGoogleアカウントが必要です。jupyter notebookと同じように、各セルは`shift`+`enter`で実行できますし、スマートフォンなどからでも▶ボタンをクリックすれば実行できます。
+を使います。python環境がない人は[GoogleColabでの当日用](https://colab.research.google.com/github/AkinoriTanaka-phys/HPC-Phys_tutorial_and_hands-on/blob/master/handson_for_colab.ipynb)を使ってください。こちらは実行にはGoogleアカウントが必要です。jupyter notebookと同じように、各セルは`shift`+`enter`あるいは、スマートフォンなどからでも▶ボタンをクリックすれば実行できます。
 
 GoogleColabでそのまま実行しようとすると
 >警告: このノートブックは Google が作成したものではありません。<br>
 このノートブックは GitHub から読み込まれています。Google に保存されているデータへのアクセスが求められたり、他のセッションからデータや認証情報が読み取られたりする場合があります。このノートブックを実行する前にソースコードをご確認ください。
 
-と出るかと思いますが、そのまま実行でもいいですし、この警告が気になる方は左上のメニューにある「ドライブにコピー」した後、自分のドライブから開くのが良いと思います。
+と出るかと思いますが、この警告が気になる方は左上のメニューにある「ドライブにコピー」した後、自分のドライブから開くのが良いと思います。
 
 # 内容
 
@@ -32,11 +32,8 @@ GoogleColabでそのまま実行しようとすると
 # 環境
 一応私の環境を書いておきますと
 ```
-$ python
-Python 3.5.1 |Anaconda custom (x86_64)| (default, Jun 15 2016, 16:14:02) 
-[GCC 4.2.1 Compatible Apple LLVM 4.2 (clang-425.0.28)] on darwin
-Type "help", "copyright", "credits" or "license" for more information.
->>>
+Python 3.5.1 :: Anaconda custom (x86_64)
+anaconda3-4.1.0
 ```
 です。anacondaが入っていれば動くと思います。
 
