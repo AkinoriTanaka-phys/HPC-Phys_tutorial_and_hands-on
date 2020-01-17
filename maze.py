@@ -113,6 +113,32 @@ class MazeEnv():
     def flip(self, coordinate=[None, None]):
         self.tile[coordinate[0], coordinate[1]] = not self.tile[coordinate[0], coordinate[1]]
         self.load_tile()
+    
+    def render_tile(self, ax, cmap='gray'):
+        ax.imshow(self.tile.T, interpolation="none", cmap=cmap)
+        return ax
+    
+    def render_arrows(self, ax, values_table):
+        lx, ly, _ = values_table.shape
+        vmaxs = np.max(values_table, axis=2).reshape(lx, ly, 1)
+        vt = np.transpose(values_table*self.tile.reshape(lx, ly, 1)/vmaxs, (1,0,2))
+        width = 0.5
+        X, Y= np.meshgrid(np.arange(0, lx, 1), np.arange(0, ly, 1))
+        ones = .5*np.ones(lx*ly).reshape(lx, ly)
+        zeros= np.zeros(lx*ly).reshape(lx, ly)
+        # up
+        ax.quiver(X, Y, zeros, ones, vt[:,:,0], alpha=0.8, 
+                      cmap='Reds', scale_units='xy', scale=1)
+        # down
+        ax.quiver(X, Y, zeros, -ones, vt[:,:,1], alpha=0.8, 
+                      cmap='Reds', scale_units='xy', scale=1)
+        # left
+        ax.quiver(X, Y, -ones, zeros, vt[:,:,2], alpha=0.8, 
+                      cmap='Reds', scale_units='xy', scale=1)
+        # right
+        ax.quiver(X, Y, ones, zeros, vt[:,:,3], alpha=0.8, 
+                      cmap='Reds', scale_units='xy', scale=1)
+        return ax
         
     def render(self, fig=None, ax=None, lines=None, values_table=None):
         canvas = False
@@ -126,32 +152,11 @@ class MazeEnv():
             ax.set_xlabel('x')
             ax.set_ylabel('y')
         ####
-        if values_table is not None:
-            lx, ly, _ = values_table.shape
-            vmaxs = np.max(values_table, axis=2).reshape(lx, ly, 1)
-            vt = np.transpose(values_table*self.tile.reshape(lx, ly, 1)/vmaxs, (1,0,2))
-            width = 0.5
-            X, Y= np.meshgrid(np.arange(0, lx, 1), np.arange(0, ly, 1))
-            #values = X**2
-            #print(X.shape)
-            ones = .5*np.ones(lx*ly).reshape(lx, ly)
-            zeros= np.zeros(lx*ly).reshape(lx, ly)
-            # up
-            ax.quiver(X, Y, zeros, ones, vt[:,:,0], alpha=0.8, 
-                      cmap='Reds', scale_units='xy', scale=1)
-            # down
-            ax.quiver(X, Y, zeros, -ones, vt[:,:,1], alpha=0.8, 
-                      cmap='Reds', scale_units='xy', scale=1)
-            # left
-            ax.quiver(X, Y, -ones, zeros, vt[:,:,2], alpha=0.8, 
-                      cmap='Reds', scale_units='xy', scale=1)
-            # right
-            ax.quiver(X, Y, ones, zeros, vt[:,:,3], alpha=0.8, 
-                      cmap='Reds', scale_units='xy', scale=1)
-            #plt.colorbar(vt)
-        ####
+        ax = self.render_tile(ax)
         
-        ax.imshow(self.tile.T, interpolation="none", cmap='gray')
+        if values_table is not None:
+            ax = self.render_arrows(ax, values_table)
+        ####
         try:
             ax.scatter(self.start[0], self.start[1], marker='x', s=100, color='blue',
                        alpha=0.8, label='start')
@@ -223,3 +228,65 @@ class MazeEnv():
         plt.show()
         print("solved!")
 
+
+class CliffEnv(MazeEnv):
+    def __init__(self, lx, ly, threshold=0.9, figsize=5):
+        self.lx = lx
+        self.ly = ly
+        self.create_cliff()
+        self.start = [0, ly-1]
+        self.goal = [lx-1, ly-1]
+        
+        self.action_space = [0,1,2,3]
+        self.status = 'Initialized'
+        self.figsize = figsize
+        
+    def reset(self, coordinate=[None, None]):
+        """
+        put the state at the start.
+        """
+        if coordinate[0]!=None:
+            self.state = np.array(coordinate)
+        else:
+            self.state = np.array(self.start)
+        self.status = 'Reset'
+        self.t = 0
+        return self.get_state()
+    
+    def create_cliff(self):
+        """
+        creating a cliff
+        """
+        x = np.ones(self.lx*self.ly).reshape(self.lx, self.ly)
+        x[:, self.ly-1] -= 1
+        x[0, self.ly-1] += 1
+        x[self.lx-1, self.ly-1] += 1
+        self.tile = x
+        self.load_tile()
+        
+    def render_tile(self, ax, cmap='Reds_r'):
+        ax.imshow(self.tile.T, interpolation="none", cmap=cmap)
+        return ax
+    
+    def step0(self, state, action):
+        add_vector_np = action2vect[action]
+        if (state+add_vector_np).tolist() in self.floors.tolist():
+            next_state = state+add_vector_np
+            self.status = 'Moved'
+        elif (state+add_vector_np).tolist() in self.holes.tolist():
+            next_state = self.start
+            self.status = 'Dropped'
+        else:
+            next_state = state
+            self.status = 'Move failed'
+        self.t += 1
+        return next_state
+    
+    def step1(self, state, action, state_p):
+        if state_p.tolist()==self.goal:
+            reward = 1
+        elif self.status=='Dropped':
+            reward = -100
+        else:
+            reward = 0
+        return reward
