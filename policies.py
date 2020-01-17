@@ -1,8 +1,9 @@
 import numpy as np
 
 def softmax(xs):
+    sps = xs.shape
     num = np.exp(xs)
-    den = np.sum(num)
+    den = np.sum(num, axis=2).reshape(sps[0], sps[1], 1)
     return num/den
 
 class Parameters():
@@ -60,22 +61,24 @@ class EpsilonGreedy(Greedy):
             action = np.random.choice(np.arange(len(values)))
         return action
 
-       
 class Softmax(Policy):
-    def __init__(self, Env, temperature=1, Q=None):
-        if Q is None:
-            self.Q = Table(Env)
-        else:
-            self.Q = Q
+    def __init__(self, Env, f=None, temp=1):
+        self.f = f
         self.Env = Env
-        self.temperature = temperature
+        self.temp = temp
         
-    def get_prob(self, state):
-        Qvalues = self.Q.get_values(state)
-        prob = softmax(Qvalues/self.temperature)
+    def get_prob_table(self):
+        fvalues_table = self.f.values_table
+        #self.f.get_values(state)
+        prob = softmax(fvalues_table/self.temp)
         return prob
+    
+    def get_prob(self, state):
+        x, y = state
+        return self.get_prob_table()[x, y, :]
         
     def sample(self):
         prob = self.get_prob(self.Env.state)
-        action = np.random.choice(np.arange(4), p=prob)
+        action = np.random.choice(self.Env.action_space, p=prob)
+               #p=prob のオプションは確率リストprobに従ってaction_spaceからサンプルする
         return action

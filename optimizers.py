@@ -23,8 +23,6 @@ class SARSA_optimizer(Optimizer):
                                               self.gamma*self.Q.get_values(s_next)[a_next])
         self.Q.get_values(s)[a] -= self.eta*TD_error
         
-        
-    
 class Qlearning_optimizer(Optimizer):
     def __init__(self, Agt, eta, gamma):
         self.Agent = Agt
@@ -37,31 +35,32 @@ class Qlearning_optimizer(Optimizer):
                                            self.gamma*np.max(self.Q.get_values(s_next)))
                                                        # ↑ ここが変わった
         self.Q.get_values(s)[a] -= self.eta*error
-       
-        
+
 class REINFORCE_optimizer(Optimizer):
-    def __init__(self, Agt, lr):
+    def __init__(self, Agt, eta):
         self.Policy = Agt.Policy
-        self.Q = Agt.Policy.Q
-        self.lr = lr
-        
-    def update_single(self, state, action, orbit=[None]):
-        g2 = 0
-        for a in range(4):
-            if a==action:
-                g1 = orbit.count([state, a])*(1-self.Policy.get_prob(state)[action])
-            else:
-                g2+= orbit.count([state, a])
-        g2*=-self.Policy.get_prob(state)[action]
-        
-        T = len(orbit)
-        self.Q.get_values(state)[action] += (g1+g2)*self.lr/T
+        self.f = Agt.Policy.f
+        self.Env = Agt.Policy.Env
+        self.eta = eta
+        self.N_sa = Parameters(self.Env, init=0) # N_{(s,a)}を数えるためParametersを利用
+        self.N = 0 # 実際にself.fが更新された回数を数える。なくてもよい
             
-    def update(self, orbit=[None]):
-        for x in range(self.Policy.Env.lx):
-            for y in range(self.Policy.Env.lx):
-                for action in range(4):
-                    self.update_single((x, y), action, orbit)
+    def update(self, s, a, r_next, s_next):
+        x, y = s
+        if self.Env.is_solved():
+            self.N_sa.values_table[x, y, a] +=10 # 最後にボーナス（理論から外れるがこれがないと遅い）
+            T = self.Env.t + 0.01 # オーバーフロー対策(たまに偶然ゴールに落とされてしまうので。。。)
+            N_sa = self.N_sa.values_table # N_{(s,a)}を読み込む
+            N_s = np.sum(N_sa, axis=2).reshape(self.Env.lx, self.Env.ly, 1)
+            g = (N_sa - N_s*self.Policy.get_prob_table())/T # 方策勾配
+            self.f.values_table += self.eta*g # 更新
+            self.N += 1 # なくてもよい
+        else:
+            self.N_sa.values_table[x, y, a] +=1 # ここは必須、ゴールしてない時はN_{(s,a)}を更新
+            
+    def reset(self):
+        self.N_sa.values_table[:,:,:] = 0*self.N_sa.values_table[:,:,:]
+        # エピソードごとにN_{(s,a)}をリセットする。これは下の学習ループで唱える
                     
 ###### not yet
 class ActorCritic_optimizer(Optimizer):
