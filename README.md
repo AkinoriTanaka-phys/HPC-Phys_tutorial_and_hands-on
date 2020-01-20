@@ -1,4 +1,7 @@
 # HPC-Phys_tutorial_and_hands-on
+|強化学習前|強化学習後|
+----|---- 
+|![untrained](https://user-images.githubusercontent.com/56260947/72718271-f5ad0680-3bb8-11ea-8824-80002eeee01b.gif)|![trained](https://user-images.githubusercontent.com/56260947/72718246-eaf27180-3bb8-11ea-9c01-64b7d1e3fb44.gif)|
 
 [第6回 High Performance Computing Physics (HPC-Phys) 勉強会](http://hpc-phys.kek.jp/workshop/workshop200131.html)で行う予定のチュートリアル/ハンズオン用のリポジトリです。このリポジトリごとダウンロードしておいてください。当日は
 * [section1_handson.ipynb](https://github.com/AkinoriTanaka-phys/HPC-Phys_tutorial_and_hands-on/blob/master/section1_handson.ipynb)
